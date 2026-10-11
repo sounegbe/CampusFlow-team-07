@@ -1,6 +1,9 @@
 import unittest
 
-from campusflow.tickets import validate_ticket_input
+from campusflow.tickets import (
+    calculate_priority,
+    validate_ticket_input,
+)
 
 
 class TestTicketValidation(unittest.TestCase):
@@ -42,6 +45,36 @@ class TestTicketValidation(unittest.TestCase):
             result, ("Laptop broken", "Hardware", "low", 1)
         )
 
+class TestTicketPriority(unittest.TestCase):
+    def test_high_urgency_with_twelve_users_is_critical(self):
+        self.assertEqual(calculate_priority("high", 12), "critical")
+
+    def test_high_urgency_with_two_users_is_high(self):
+        self.assertEqual(calculate_priority("high", 2), "high")
+
+    def test_low_urgency_with_four_users_is_medium(self):
+        self.assertEqual(calculate_priority("low", 4), "medium")
+
+    def test_low_urgency_with_one_user_is_low(self):
+        self.assertEqual(calculate_priority("low", 1), "low")
+
+    def test_high_urgency_at_ten_users_is_critical(self):
+        self.assertEqual(calculate_priority("high", 10), "critical")
+
+    def test_low_urgency_at_ten_users_is_high(self):
+        self.assertEqual(calculate_priority("low", 10), "high")
+
+    def test_low_urgency_at_three_users_is_medium(self):
+        self.assertEqual(calculate_priority("low", 3), "medium")
+
+    def test_low_urgency_with_two_users_is_low(self):
+        self.assertEqual(calculate_priority("low", 2), "low")
+
+    def test_medium_urgency_with_one_user_is_medium(self):
+        self.assertEqual(calculate_priority("medium", 1), "medium")
+
+    def test_high_urgency_with_nine_users_is_high(self):
+        self.assertEqual(calculate_priority("high", 9), "high")
 
 if __name__ == "__main__":
     unittest.main()

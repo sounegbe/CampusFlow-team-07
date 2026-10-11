@@ -37,3 +37,17 @@ def validate_ticket_input(title, category, urgency, affected_users):
         raise ValueError("Affected users must be a positive integer.")
 
     return title, category, urgency, affected_users
+
+def calculate_priority(urgency, affected_users):
+    """Calculate priority from valid, normalized inputs."""
+
+    if urgency == "high" and affected_users >= 10:
+        return "critical"
+
+    if urgency == "high" or affected_users >= 10:
+        return "high"
+
+    if urgency == "medium" or affected_users >= 3:
+        return "medium"
+
+    return "low"
