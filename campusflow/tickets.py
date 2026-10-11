@@ -51,15 +51,35 @@ def calculate_priority(urgency, affected_users):
         return "medium"
 
     return "low"
-
+   
 def generate_ticket_id(tickets):
-    """Return the next ID based on existing valid ticket IDs."""
+    """Return the next ID, rejecting malformed existing IDs."""
 
     highest_number = 0
 
     for ticket in tickets:
-        ticket_id = ticket["id"]
-        number = int(ticket_id[1:])
+        ticket_id = ticket.get("id")
+
+        if not isinstance(ticket_id, str):
+            raise ValueError("Existing ticket ID must be text.")
+
+        digits = ticket_id[1:]
+
+        if (
+            not ticket_id.startswith("T")
+            or len(digits) < 3
+            or not digits.isascii()
+            or not digits.isdigit()
+        ):
+            raise ValueError(
+                f"Invalid ticket ID: {ticket_id!r}. "
+                "Expected T followed by at least three ASCII digits."
+            )
+
+        number = int(digits)
+
+        if number <= 0:
+            raise ValueError("Ticket ID number must be greater than zero.")
 
         if number > highest_number:
             highest_number = number

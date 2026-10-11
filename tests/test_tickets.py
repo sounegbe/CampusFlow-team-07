@@ -94,6 +94,25 @@ class TestTicketID(unittest.TestCase):
 
         self.assertEqual(generate_ticket_id(tickets), "T004")
 
+    def test_malformed_existing_ids_are_rejected(self):
+        invalid_ids = (
+            "X007",
+            "TABC",
+            "T01",
+            "T000",
+            "T-01",
+            "T 01",
+            "T００１",
+            "",
+            None,
+            7,
+        )
+
+        for ticket_id in invalid_ids:
+            with self.subTest(ticket_id=ticket_id):
+                with self.assertRaises(ValueError):
+                    generate_ticket_id([{"id": ticket_id}])
+
     def test_unsorted_ids_use_highest_number(self):
         tickets = [
             {"id": "T007"},
