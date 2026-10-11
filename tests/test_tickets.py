@@ -2,6 +2,7 @@ import unittest
 
 from campusflow.tickets import (
     calculate_priority,
+    create_ticket,
     generate_ticket_id,
     validate_ticket_input,
 )
@@ -112,6 +113,75 @@ class TestTicketID(unittest.TestCase):
         generate_ticket_id(tickets)
 
         self.assertEqual(tickets, [{"id": "T001"}])
+
+class TestTicketCreation(unittest.TestCase):
+    def test_creates_and_stores_complete_ticket(self):
+        tickets = []
+
+        result = create_ticket(
+            tickets, " Wi-Fi down ", "NETWORK", "HIGH", 12
+        )
+
+        expected = {
+            "id": "T001",
+            "title": "Wi-Fi down",
+            "category": "Network",
+            "urgency": "high",
+            "affected_users": 12,
+            "priority": "critical",
+            "status": "open",
+            "assigned_to": None,
+        }
+
+        self.assertEqual(result, expected)
+        self.assertEqual(tickets, [expected])
+
+    def test_multiple_tickets_have_different_ids(self):
+        tickets = []
+
+        first = create_ticket(
+            tickets, "Wi-Fi down", "Network", "high", 12
+        )
+        second = create_ticket(
+            tickets, "Laptop broken", "Hardware", "low", 1
+        )
+
+        self.assertEqual(first["id"], "T001")
+        self.assertEqual(second["id"], "T002")
+        self.assertEqual(len(tickets), 2)
+
+    def test_invalid_creation_preserves_existing_tickets(self):
+        for invalid_title in ("", "   "):
+            with self.subTest(title=invalid_title):
+                existing = {
+                    "id": "T001",
+                    "title": "Laptop broken",
+                    "category": "Hardware",
+                    "urgency": "low",
+                    "affected_users": 1,
+                    "priority": "low",
+                    "status": "open",
+                    "assigned_to": None,
+                }
+                tickets = [existing.copy()]
+
+                with self.assertRaises(ValueError):
+                    create_ticket(
+                        tickets, invalid_title, "Network", "high", 12
+                    )
+
+                self.assertEqual(tickets, [existing])
+
+    def test_creation_uses_highest_existing_id(self):
+        tickets = [{"id": "T007"}, {"id": "T002"}]
+
+        result = create_ticket(
+            tickets, "App unavailable", "Software", "medium", 2
+        )
+
+        self.assertEqual(result["id"], "T008")
+        self.assertEqual(result["priority"], "medium")
+        self.assertEqual(len(tickets), 3)
 
 if __name__ == "__main__":
     unittest.main()

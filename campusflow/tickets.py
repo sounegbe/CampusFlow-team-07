@@ -65,3 +65,28 @@ def generate_ticket_id(tickets):
             highest_number = number
 
     return f"T{highest_number + 1:03d}"
+
+def create_ticket(tickets, title, category, urgency, affected_users):
+    """Create, store, and return a validated ticket."""
+
+    title, category, urgency, affected_users = validate_ticket_input(
+        title, category, urgency, affected_users
+    )
+
+    priority = calculate_priority(urgency, affected_users)
+    ticket_id = generate_ticket_id(tickets)
+
+    ticket = {
+        "id": ticket_id,
+        "title": title,
+        "category": category,
+        "urgency": urgency,
+        "affected_users": affected_users,
+        "priority": priority,
+        "status": "open",
+        "assigned_to": None,
+    }
+
+    tickets.append(ticket)
+
+    return ticket
