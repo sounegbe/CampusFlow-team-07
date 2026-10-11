@@ -51,7 +51,7 @@ def calculate_priority(urgency, affected_users):
         return "medium"
 
     return "low"
-   
+
 def generate_ticket_id(tickets):
     """Return the next ID, rejecting malformed existing IDs."""
 
