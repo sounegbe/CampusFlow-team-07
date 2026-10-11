@@ -90,3 +90,23 @@ def create_ticket(tickets, title, category, urgency, affected_users):
     tickets.append(ticket)
 
     return ticket
+
+def list_tickets(tickets):
+    """Return copies of all tickets without changing the originals."""
+
+    return [ticket.copy() for ticket in tickets]
+
+
+def get_ticket(tickets, ticket_id):
+    """Return a copy of the matching ticket or raise ValueError."""
+
+    if not isinstance(ticket_id, str) or not ticket_id.strip():
+        raise ValueError("Ticket ID must not be blank.")
+
+    ticket_id = ticket_id.strip().upper()
+
+    for ticket in tickets:
+        if ticket["id"] == ticket_id:
+            return ticket.copy()
+
+    raise ValueError(f"Ticket '{ticket_id}' was not found.")

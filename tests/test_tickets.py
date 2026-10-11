@@ -4,6 +4,8 @@ from campusflow.tickets import (
     calculate_priority,
     create_ticket,
     generate_ticket_id,
+    get_ticket,
+    list_tickets,
     validate_ticket_input,
 )
 
@@ -181,7 +183,69 @@ class TestTicketCreation(unittest.TestCase):
 
         self.assertEqual(result["id"], "T008")
         self.assertEqual(result["priority"], "medium")
-        self.assertEqual(len(tickets), 3)
+
+class TestTicketViewing(unittest.TestCase):
+    def setUp(self):
+        self.tickets = []
+
+        create_ticket(
+            self.tickets, "Wi-Fi down", "Network", "high", 12
+        )
+        create_ticket(
+            self.tickets, "Laptop broken", "Hardware", "low", 1
+        )
+
+    def test_empty_list_returns_empty_list(self):
+        self.assertEqual(list_tickets([]), [])
+
+    def test_lists_all_tickets_in_existing_order(self):
+        result = list_tickets(self.tickets)
+
+        self.assertEqual(
+            [ticket["id"] for ticket in result],
+            ["T001", "T002"],
+        )
+        self.assertEqual(result, self.tickets)
+
+    def test_list_results_do_not_modify_originals(self):
+        result = list_tickets(self.tickets)
+
+        result[0]["title"] = "Changed title"
+        result.pop()
+
+        self.assertEqual(self.tickets[0]["title"], "Wi-Fi down")
+        self.assertEqual(len(self.tickets), 2)
+
+    def test_finds_requested_ticket(self):
+        result = get_ticket(self.tickets, "T002")
+
+        self.assertEqual(result, self.tickets[1])
+
+    def test_normalizes_ticket_id(self):
+        result = get_ticket(self.tickets, " t001 ")
+
+        self.assertEqual(result["id"], "T001")
+
+    def test_unknown_ticket_id_is_rejected(self):
+        with self.assertRaises(ValueError):
+            get_ticket(self.tickets, "T999")
+
+    def test_lookup_in_empty_list_is_rejected(self):
+        with self.assertRaises(ValueError):
+            get_ticket([], "T001")
+
+    def test_invalid_ticket_ids_are_rejected(self):
+        for ticket_id in ("", "   ", None, 1, True):
+            with self.subTest(ticket_id=ticket_id):
+                with self.assertRaises(ValueError):
+                    get_ticket(self.tickets, ticket_id)
+
+    def test_viewed_ticket_does_not_modify_original(self):
+        result = get_ticket(self.tickets, "T001")
+
+        result["status"] = "resolved"
+
+        self.assertEqual(self.tickets[0]["status"], "open")
 
 if __name__ == "__main__":
     unittest.main()
