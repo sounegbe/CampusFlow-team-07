@@ -51,3 +51,17 @@ def calculate_priority(urgency, affected_users):
         return "medium"
 
     return "low"
+
+def generate_ticket_id(tickets):
+    """Return the next ID based on existing valid ticket IDs."""
+
+    highest_number = 0
+
+    for ticket in tickets:
+        ticket_id = ticket["id"]
+        number = int(ticket_id[1:])
+
+        if number > highest_number:
+            highest_number = number
+
+    return f"T{highest_number + 1:03d}"
