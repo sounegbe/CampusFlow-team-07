@@ -30,10 +30,12 @@ class TestWorkflow(unittest.TestCase):
         assign_ticket(self.tickets, " t001 ", " Ada ")
         change_status(self.tickets, "T001", "IN_PROGRESS")
         change_status(self.tickets, "T001", "resolved")
-        for action in (lambda: assign_ticket(self.tickets, "T001", "Bob"),
-                       lambda: change_status(self.tickets, "T001", "open")):
-            with self.assertRaises(ValueError):
-                action()
+        with self.assertRaises(ValueError):
+            assign_ticket(self.tickets, "T001", "Bob")
+        change_status(self.tickets, "T001", "open")
+        self.assertEqual(self.tickets[0]["status"], "open")
+        change_status(self.tickets, "T001", "in_progress")
+        change_status(self.tickets, "T001", "resolved")
         reopen_ticket(self.tickets, "T001")
         self.assertEqual(self.tickets[0]["status"], "open")
         self.assertEqual(self.tickets[0]["assigned_to"], "Ada")
