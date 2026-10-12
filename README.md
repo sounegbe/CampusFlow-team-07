@@ -36,8 +36,9 @@ To start fresh, exit and move your data file to a backup location. Do not delete
 ## Contributions and assessment evidence
 
 - Engineer A: 2solo / sounegbe. Ticket functions and original 36 tests developed with AI guidance.
-- Partner: Symplythatguy. Repository setup PR #1. Engineer B application contribution and individual learning evidence have not yet been verified.
-- Completion work: AI assistant, explicitly authorized by sounegbe, supplied workflow, reports, storage, CLI, and 12 additional tests. These changes must not be represented as independently authored Engineer B work.
+- Engineer B: Symplythatguy (Daniel Okoh). Wrote `find_ticket` and `assign_ticket` and their first tests with step-by-step AI mentoring. Created Issues #2 and #3, opened PR #6, resolved the merge conflict in `docs/design-decisions.md`, merged the shared design decisions, and ran the full suite (60 tests) and the CLI on `main`. Repository setup commit and AI learning log are his.
+- AI-supplied code: at Engineer B's request, because of the deadline, an AI assistant supplied `change_status`, `get_work_queue`, `build_report` and their tests. Storage, CLI, and the 12 integration tests were also AI-supplied under sounegbe's authorization. These parts must not be represented as independently authored work.
+- Review evidence: Engineer B's review of Engineer A's work is recorded in the PR comments, and only counts once those comments are posted.
 
 PRs: [setup #1](https://github.com/sounegbe/CampusFlow-team-07/pull/1), [Part A #4](https://github.com/sounegbe/CampusFlow-team-07/pull/4), [all PRs](https://github.com/sounegbe/CampusFlow-team-07/pulls?q=is%3Apr).
 
