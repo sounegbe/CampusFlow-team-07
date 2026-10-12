@@ -8,7 +8,7 @@
 - Both: CLI menu, JSON storage, integration, and documentation.
 
 ## Ticket storage
-Tickets are stored in a list of dictionaries.
+Tickets are stored in a list of dictionaries and passed to each function.
 Each ticket contains:
 id, title, category, urgency, affected_users, priority,
 status, assigned_to.
@@ -25,8 +25,15 @@ status, assigned_to.
 - Urgency: low, medium, high.
 - Accept valid case variations and normalize them.
 - affected_users must be a positive integer.
-- Invalid input raises ValueError.
+- Invalid input raises ValueError; the CLI catches it and shows the message.
 - Failed operations must not change the ticket list.
+
+## Workflow rules
+- Status moves: open -> in_progress -> resolved; resolved -> open (reopen) only.
+- in_progress -> open is not allowed.
+- A ticket must be assigned before it can be in_progress.
+- A resolved ticket cannot be assigned until it is reopened.
+- The work queue shows only open tickets, sorted by priority then numeric ID.
 
 ## Function boundaries
 - Business functions receive arguments and return results.
