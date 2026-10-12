@@ -27,7 +27,6 @@ Related commit:
 494848a
 
 What I can now explain without AI:
-Use this as a guide, then rewrite it in words you understand:
 
 > **Validation** checks that ticket details follow the rules. For example, the number of affected users must be greater than zero.
 >
