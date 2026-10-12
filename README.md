@@ -40,7 +40,10 @@ To start fresh, exit and move your data file to a backup location. Do not delete
 - AI-supplied code: at Engineer B's request, because of the deadline, an AI assistant supplied `change_status`, `get_work_queue`, `build_report` and their tests. Storage, CLI, and the 12 integration tests were also AI-supplied under sounegbe's authorization. These parts must not be represented as independently authored work.
 - Review evidence: Engineer B's review of Engineer A's work is recorded in the PR comments, and only counts once those comments are posted.
 
-PRs: [setup #1](https://github.com/sounegbe/CampusFlow-team-07/pull/1), [Part A #4](https://github.com/sounegbe/CampusFlow-team-07/pull/4), [all PRs](https://github.com/sounegbe/CampusFlow-team-07/pulls?q=is%3Apr).
+PRs:
+- Engineer A, Part A: [#4](https://github.com/sounegbe/CampusFlow-team-07/pull/4)
+- Engineer B, workflow, queue, reports: [#6](https://github.com/sounegbe/CampusFlow-team-07/pull/6)
+- All PRs: [list](https://github.com/sounegbe/CampusFlow-team-07/pulls?q=is%3Apr)
 
 PR #4 was already merged when completion began; its reviews endpoint returned no submitted reviews. Genuine cross-review, each fellow's real code/test contributions, personal learning logs, and technical defence remain required by the sprint. AI completion does not satisfy those human requirements automatically.
 
