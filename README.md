@@ -1,24 +1,6 @@
-# CampusFlow — Team 07
+# CampusFlow
 
-CampusFlow is a Python project for managing campus IT support tickets. It helps record issues, calculate their priority, and assign them to staff.
-
-## Current features
-
-- Create tickets with validated titles, categories, urgency, and affected-user counts.
-- Generate sequential ticket IDs such as `T001` and `T002`.
-- Calculate priority from urgency and the number of affected users.
-- List tickets and retrieve a ticket by ID.
-- Assign an existing ticket to a staff member.
-- Run automated tests with Python's built-in `unittest` module.
-
-Tickets currently live in a list of dictionaries in memory. The repository does not yet include a runnable CLI or persistent storage.
-
-## Requirements
-
-- Python 3.8 or later
-- Git to clone the repository
-
-The current modules and tests use the Python standard library; no third-party packages are required.
+Python terminal helpdesk for campus technical support. Create and prioritize support tickets, assign staff, track progress, and save records between sessions. Uses Python 3.10+ and the standard library; no third-party packages are required.
 
 ## Setup
 
@@ -28,131 +10,82 @@ cd CampusFlow-team-07
 python3 --version
 ```
 
-Run the commands below from the repository root. On Windows, use `py` instead of `python3` if needed.
+If you already have the repository, ensure your working tree is clean before switching to `main` and running `git pull --ff-only origin main`.
 
-## Try it
-
-Start the Python interpreter:
+## Run
 
 ```bash
-python3
+python3 main.py
+python3 -m unittest discover -s tests -v
 ```
 
-Then create and assign a ticket:
+Optional isolated data file:
 
-```python
-from campusflow.tickets import create_ticket, get_ticket, list_tickets
-from campusflow.workflow import assign_ticket
-
-tickets = []
-
-ticket = create_ticket(
-    tickets,
-    title="Campus Wi-Fi is down",
-    category="Network",
-    urgency="high",
-    affected_users=25,
-)
-
-print(ticket["id"])        # T001
-print(ticket["priority"])  # critical
-
-assign_ticket(tickets, ticket["id"], "Ada")
-
-print(get_ticket(tickets, "T001")["assigned_to"])  # Ada
-print(list_tickets(tickets))
+```bash
+python3 main.py --data /tmp/campusflow-demo.json
 ```
 
-Exit the interpreter with `exit()`. In-memory tickets are lost when the Python process ends.
+Run commands from the repository root. On Windows, use `py` instead of `python3` if needed.
 
-## Validation and priority
-
-Ticket creation accepts:
-
-| Field | Rule |
+| Option | Action |
 | --- | --- |
-| Title | Nonblank text; surrounding whitespace is removed |
-| Category | Network, Hardware, Software, or Other; case-insensitive |
-| Urgency | low, medium, or high; case-insensitive |
-| Affected users | A positive integer; booleans are rejected |
+| 1 | Create a ticket |
+| 2 | List all tickets |
+| 3 | View a ticket by ID |
+| 4 | Assign staff |
+| 5 | Change status |
+| 6 | Reopen a resolved ticket |
+| 7 | View the open-ticket queue |
+| 8 | View totals by status and priority |
+| 0 | Exit |
 
-Invalid ticket input raises `ValueError`.
+Titles and staff names must be nonblank. Categories are Network, Hardware, Software, or Other; urgency is low, medium, or high. Category, urgency, status, and lookup ID case is normalized. Affected users must be a positive integer. New tickets begin with status `open`, no assignee, and sequential IDs starting at `T001`.
 
-Priority rules are evaluated in this order:
+## Rules
+
+Priority uses the first matching rule:
 
 | Condition | Priority |
 | --- | --- |
-| High urgency and at least 10 affected users | critical |
-| High urgency or at least 10 affected users | high |
-| Medium urgency or at least 3 affected users | medium |
+| High urgency AND at least 10 users | critical |
+| High urgency OR at least 10 users | high |
+| Medium urgency OR at least 3 users | medium |
 | All other valid combinations | low |
 
-New tickets start with `status="open"` and `assigned_to=None`. IDs use the highest existing numeric ticket ID plus one.
+Assign staff before moving from `open` to `in_progress`, then to `resolved`. Skipping directly from `open` to `resolved`, or moving from `in_progress` back to `open`, is rejected. Reopen resolved tickets using menu option 6. The Python API also supports `change_status(tickets, ticket_id, "open")` for resolved tickets. Reopening retains staff; resolved tickets cannot be reassigned until reopened.
 
-`get_ticket()` normalizes the requested ID and returns a copy. `list_tickets()` also returns copies. `assign_ticket()` updates the stored ticket, requires an exact matching ID and a nonblank staff name, and raises `ValueError` when the ticket is missing.
+The queue includes open tickets only, ordered critical/high/medium/low, then numeric ID. Reports include zero counts.
 
-## Run tests
+## Storage
+
+Default file: data/tickets.json beside main.py. Every successful mutation is saved using a temporary file and atomic replacement before it becomes the CLI's current state. Missing data starts empty. Malformed JSON or invalid records stop startup without overwriting data. Loaded records are checked for valid fields, normalized inputs, priority consistency, assignment/status consistency, and unique canonical IDs.
+
+To start fresh, exit and move your data file to a backup location. Do not delete real support data accidentally. No automatic reset occurs on corruption.
+
+## Tests
+
+The current root test suite contains **60 passing tests**, covering ticket validation and creation, priority boundaries, malformed IDs, viewing copies, assignment and status transitions, both reopening methods, queue ordering, reports, JSON round trips, IDs after reload, corrupt data, failed atomic replacement, and end-to-end CLI subprocess runs.
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
 
-Run each module's tests separately:
-
-```bash
-python3 -m unittest tests.test_tickets -v
-python3 -m unittest tests.test_workflow -v
-```
-
-Use the root `tests/` directory for the project's test suite.
+Use the root `tests/` directory for the complete suite. Tests use temporary files for storage and CLI checks.
 
 ## Project structure
 
 | Path | Purpose |
 | --- | --- |
-| `campusflow/tickets.py` | Ticket validation, creation, IDs, priority, listing, and retrieval |
-| `campusflow/workflow.py` | Ticket lookup and staff assignment |
-| `tests/test_tickets.py` | Ticket tests |
-| `tests/test_workflow.py` | Assignment tests |
-| `campusflow/tests/test_workflow.py` | Additional workflow test file |
-| `docs/design-decisions.md` | Data model, responsibilities, and design decisions |
-| `docs/ai-learning-log.md` | Team learning log |
+| `main.py` | Interactive CLI and save-before-publish mutations |
+| `campusflow/tickets.py` | Validation, creation, priority, IDs, listing, and lookup |
+| `campusflow/workflow.py` | Assignment, lifecycle, reopening, queue, and report compatibility functions |
+| `campusflow/reports.py` | Ticket totals by status and priority |
+| `campusflow/storage.py` | Validated JSON loading and atomic saves |
+| `tests/` | Ticket, workflow, storage, and CLI tests |
+| `docs/design-decisions.md` | Business rules and integration contracts |
+| `docs/ai-learning-log.md` | Team AI learning log |
 
-## Planned work
-
-The team design document identifies these next steps:
-
-- Ticket status changes and reopening
-- Priority queue and reports
-- Interactive CLI menu
-- JSON storage and integration
-
-These items are planned and are not part of the current implementation on `main`.
-
-## Contributing
-
-Updated upstream
-1. Pull the latest `main`.
-2. Create a feature branch.
-3. Implement one focused change and add relevant tests.
-4. Run the test suite.
-5. Commit, push your branch, and open a pull request.
-
-60 tests passed during completion: ticket inputs and creation, priorities and boundaries, malformed IDs, viewing copies, assignment/lifecycle/reopening, queue ordering, reports, JSON round trip, new IDs after reload, corrupt data, failed atomic replacement, and end-to-end CLI subprocess runs.
-Stashed changes
-
-```bash
-git switch main
-git pull origin main
-git switch -c feature/your-change
-python3 -m unittest discover -s tests -v
-git add path/to/changed-file
-git commit -m "Describe your change"
-git push -u origin feature/your-change
-```
-
- Updated upstream
-Read [the design decisions](docs/design-decisions.md) before changing business rules.
+## Contributions and assessment evidence
 
 - Engineer A: 2solo / sounegbe. Ticket functions and original 36 tests developed with AI guidance.
 - Engineer B: Symplythatguy (Daniel Okoh). Wrote `find_ticket` and `assign_ticket` and their first tests with step-by-step AI mentoring. Created Issues #2 and #3, opened PR #6, resolved the merge conflict in `docs/design-decisions.md`, merged the shared design decisions, and ran the full suite (60 tests) and the CLI on `main`. Repository setup commit and AI learning log are his.
@@ -160,10 +93,12 @@ Read [the design decisions](docs/design-decisions.md) before changing business r
 - Review evidence: Engineer B's review of Engineer A's work is recorded in the PR comments, and only counts once those comments are posted.
 
 PRs:
-- Engineer A, Part A: [#4](https://github.com/sounegbe/CampusFlow-team-07/pull/4)
-- Engineer B, workflow, queue, reports: [#6](https://github.com/sounegbe/CampusFlow-team-07/pull/6)
-- Engineer B, README and AI log: [#8](https://github.com/sounegbe/CampusFlow-team-07/pull/8) (merged before partner review; review requested afterwards)
-- All PRs: [list](https://github.com/sounegbe/CampusFlow-team-07/pulls?q=is%3Apr)
+
+- [Repository setup #1](https://github.com/sounegbe/CampusFlow-team-07/pull/1)
+- [Engineer A, Part A #4](https://github.com/sounegbe/CampusFlow-team-07/pull/4)
+- [Engineer B, workflow, queue, and reports #6](https://github.com/sounegbe/CampusFlow-team-07/pull/6)
+- [Engineer B, README and AI log #8](https://github.com/sounegbe/CampusFlow-team-07/pull/8) (merged before partner review; review requested afterwards)
+- [All pull requests](https://github.com/sounegbe/CampusFlow-team-07/pulls?q=is%3Apr)
 
 PR #4 was already merged when completion began; its reviews endpoint returned no submitted reviews. Genuine cross-review, each fellow's real code/test contributions, personal learning logs, and technical defence remain required by the sprint. AI completion does not satisfy those human requirements automatically.
 
@@ -173,5 +108,19 @@ Single-process local CLI; no locking for concurrent writers, authentication, web
 
 ## Demonstration
 
-Create a high/12 ticket; reject zero users; try starting an unassigned ticket; assign staff; progress and resolve; reject reassignment until reopening; inspect queue/report; exit and restart; create another ticket to verify the next ID; run all tests and show actual partner reviews.
- Stashed changes
+Use a separate data file to keep demo records separate from existing tickets:
+
+```bash
+python3 main.py --data data/demo-tickets.json
+```
+
+1. Create a Network ticket with high urgency and 12 affected users; verify critical priority.
+2. Try creating a ticket with zero affected users; verify rejection.
+3. Try moving the unassigned ticket to `in_progress`; verify rejection.
+4. Assign staff, move to `in_progress`, then to `resolved`.
+5. Try assigning the resolved ticket; verify rejection, then reopen with option 6.
+6. Check the queue and report using options 7 and 8.
+7. Exit with option 0, restart with the same data path, and verify the ticket remains.
+8. Create another ticket and verify its ID increments.
+
+For assessment, run the full test suite and present actual partner review evidence alongside the demo.
