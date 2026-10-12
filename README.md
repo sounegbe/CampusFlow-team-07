@@ -131,11 +131,15 @@ These items are planned and are not part of the current implementation on `main`
 
 ## Contributing
 
+Updated upstream
 1. Pull the latest `main`.
 2. Create a feature branch.
 3. Implement one focused change and add relevant tests.
 4. Run the test suite.
 5. Commit, push your branch, and open a pull request.
+
+60 tests passed during completion: ticket inputs and creation, priorities and boundaries, malformed IDs, viewing copies, assignment/lifecycle/reopening, queue ordering, reports, JSON round trip, new IDs after reload, corrupt data, failed atomic replacement, and end-to-end CLI subprocess runs.
+Stashed changes
 
 ```bash
 git switch main
@@ -147,4 +151,27 @@ git commit -m "Describe your change"
 git push -u origin feature/your-change
 ```
 
+ Updated upstream
 Read [the design decisions](docs/design-decisions.md) before changing business rules.
+
+- Engineer A: 2solo / sounegbe. Ticket functions and original 36 tests developed with AI guidance.
+- Engineer B: Symplythatguy (Daniel Okoh). Wrote `find_ticket` and `assign_ticket` and their first tests with step-by-step AI mentoring. Created Issues #2 and #3, opened PR #6, resolved the merge conflict in `docs/design-decisions.md`, merged the shared design decisions, and ran the full suite (60 tests) and the CLI on `main`. Repository setup commit and AI learning log are his.
+- AI-supplied code: at Engineer B's request, because of the deadline, an AI assistant supplied `change_status`, `get_work_queue`, `build_report` and their tests. Storage, CLI, and the 12 integration tests were also AI-supplied under sounegbe's authorization. These parts must not be represented as independently authored work.
+- Review evidence: Engineer B's review of Engineer A's work is recorded in the PR comments, and only counts once those comments are posted.
+
+PRs:
+- Engineer A, Part A: [#4](https://github.com/sounegbe/CampusFlow-team-07/pull/4)
+- Engineer B, workflow, queue, reports: [#6](https://github.com/sounegbe/CampusFlow-team-07/pull/6)
+- Engineer B, README and AI log: [#8](https://github.com/sounegbe/CampusFlow-team-07/pull/8) (merged before partner review; review requested afterwards)
+- All PRs: [list](https://github.com/sounegbe/CampusFlow-team-07/pulls?q=is%3Apr)
+
+PR #4 was already merged when completion began; its reviews endpoint returned no submitted reviews. Genuine cross-review, each fellow's real code/test contributions, personal learning logs, and technical defence remain required by the sprint. AI completion does not satisfy those human requirements automatically.
+
+## Limitations
+
+Single-process local CLI; no locking for concurrent writers, authentication, website, database, or ticket deletion. Viewing copies are shallow, suitable for the current scalar-only ticket schema. Core priority calculation expects validated inputs. Storage validation is stricter than creation helpers about canonical existing IDs.
+
+## Demonstration
+
+Create a high/12 ticket; reject zero users; try starting an unassigned ticket; assign staff; progress and resolve; reject reassignment until reopening; inspect queue/report; exit and restart; create another ticket to verify the next ID; run all tests and show actual partner reviews.
+ Stashed changes
